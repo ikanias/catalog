@@ -1,0 +1,34 @@
+# A Custom task given for demo purpose to download the manifest and install its dependencies.
+apiVersion: tekton.dev/v1beta1
+kind: Task
+
+metadata:
+  name: pre-setup-task
+spec:
+  params:
+    - name: https-github-url
+    - name: pkg-installation-directory-path
+      default: application-package
+  steps:
+    - name: git-clone-application-package
+      image: alpine/git
+      workingDir: $(workspaces.output.path)
+      script: |
+        #!/bin/sh
+
+        if [ -d $(params.pkg-installation-directory-path) ]; then
+          echo "Removing existing folder: $(params.pkg-installation-directory-path)..."
+          rm -r $(params.pkg-installation-directory-path)
+        fi
+
+        echo "RUNNING: mkdir -p $(params.pkg-installation-directory-path)"
+        mkdir -p $(params.pkg-installation-directory-path)
+
+        echo "RUNNING: git clone $(params.https-github-url) $(params.pkg-installation-directory-path)"
+        git clone $(params.https-github-url) $(params.pkg-installation-directory-path) 
+
+        echo "RUNNING: ls $(params.pkg-installation-directory-path)/src"
+        ls $(params.pkg-installation-directory-path)/src
+
+  workspaces:
+    - name: output

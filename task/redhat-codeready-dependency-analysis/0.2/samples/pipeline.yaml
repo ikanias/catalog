@@ -1,0 +1,77 @@
+# End to end pipeline.
+# Make sure Workspace is attached and Secret is created,
+# also configure 'pre-task-setup' and 'post-task-setup' tasks before running the pipeline.
+# refer examples from samples
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: crda-stack-analysis-pipeline
+
+spec:
+  workspaces:
+    - name: output
+
+  params:
+    - name: https-github-url
+
+    - name: manifest-file-path
+      default: pom.xml
+
+    - name: output-file-path
+      default: crda-stack-analysis-report.json
+
+    - name: pkg-installation-directory-path
+      default: application-package
+
+    - name: image
+      default: ghcr.io/fabric8-analytics/crda-maven:3.8.1
+
+# Pipeline steps
+  tasks:
+    # Task to download manifest and install its dependencies.
+    - name: pre-setup-task
+      taskRef:
+        name: pre-setup-task
+      workspaces:
+        - name: output
+          workspace: output
+      params:
+        - name: https-github-url
+          value: $(params.https-github-url)
+        - name: pkg-installation-directory-path
+          value: $(params.pkg-installation-directory-path)
+
+    # Task to create stack analysis report
+    - name: crda-stack-analysis-task
+      taskRef:
+        name: crda-stack-analysis-task
+      runAfter:
+        - pre-setup-task
+      workspaces:
+        - name: output
+          workspace: output
+      params:
+        - name: manifest-file-path
+          value: $(params.manifest-file-path)
+        - name: output-file-path
+          value: $(params.output-file-path)
+        - name: pkg-installation-directory-path
+          value: $(params.pkg-installation-directory-path)
+        - name: image
+          value: $(params.image)
+
+
+    # Task to view result and make decision about build.
+    - name: post-setup-task
+      taskRef:
+        name: post-setup-task
+      runAfter:
+        - crda-stack-analysis-task
+      workspaces:
+        - name: output
+          workspace: output
+      params:
+        - name: output-file-path
+          value: $(params.output-file-path)
+        - name: image
+          value: $(params.image)

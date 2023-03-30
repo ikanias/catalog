@@ -1,0 +1,29 @@
+# PipelineRun for starting pipeline
+# Make sure Workspace is attached and Secret is created,
+# also configure 'pre-task-setup' and 'post-task-setup' tasks before running the pipeline.
+# refer examples from samples
+
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: crda-stack-analysis-pipeline-run
+spec:
+  pipelineRef:
+    name: crda-stack-analysis-pipeline
+  workspaces:
+    - name: output
+      persistentvolumeclaim:
+        claimName: output
+
+# Change link to git_url and manifest-file-name according to target repository
+  params:
+    - name: https-github-url
+      value: https://github.com/IlonaShishov/DepDraw.git
+    - name: manifest-file-path
+      value: src/pom.xml
+    - name: output-file-path
+      value: crda-stack-analysis-report.json
+    - name: pkg-installation-directory-path
+      value: application-package
+    - name: image
+      value: ghcr.io/fabric8-analytics/crda-maven:3.8.1
