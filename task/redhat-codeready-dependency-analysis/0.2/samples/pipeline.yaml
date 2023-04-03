@@ -1,7 +1,6 @@
 # End to end pipeline.
 # Make sure Workspace is attached and Secret is created,
 # also configure 'pre-task-setup' and 'post-task-setup' tasks before running the pipeline.
-# refer examples from samples
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
@@ -24,11 +23,11 @@ spec:
       default: application-package
 
     - name: image
-      default: ghcr.io/fabric8-analytics/crda-maven:3.8.1
+      default: quay.io/ecosystem-appeng/crda-maven:1.0
 
 # Pipeline steps
   tasks:
-    # Task to download manifest and install its dependencies.
+    # Task to download application.
     - name: pre-setup-task
       taskRef:
         name: pre-setup-task
@@ -62,9 +61,9 @@ spec:
 
 
     # Task to view result and make decision about build.
-    - name: post-setup-task
+    - name: post-evaluation-task
       taskRef:
-        name: post-setup-task
+        name: post-evaluation-task
       runAfter:
         - crda-stack-analysis-task
       workspaces:

@@ -1,12 +1,12 @@
 # Stand alone redhat-codeready-dependency-analysis task run
-# Make sure manifest file is in place and dependencies are already installed inwo workspace.
+# Make sure manifest file is in place and application is already downloaded in workspace.
 apiVersion: tekton.dev/v1beta1
 kind: TaskRun
 metadata:
   name: crda-stack-analysis-task-run
 spec:
   taskRef:
-    name: crda-stack-analysis
+    name: crda-stack-analysis-task
 
   workspaces:
     - name: output
@@ -21,4 +21,4 @@ spec:
     - name: pkg-installation-directory-path
       value: application-package
     - name: image
-      value: ghcr.io/fabric8-analytics/crda-maven:3.8.1
+      value: quay.io/ecosystem-appeng/crda-maven:1.0

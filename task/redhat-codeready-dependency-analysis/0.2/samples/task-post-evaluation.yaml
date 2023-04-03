@@ -1,0 +1,36 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+
+metadata:
+  name: post-evaluation-task
+spec:
+  params:
+    - name: output-file-path
+      default: crda-stack-analysis-report.json
+    - name: image
+      default: quay.io/ecosystem-appeng/crda-maven:1.0
+  workspaces:
+    - name: output
+  steps:
+    - name: evaluate-results 
+      image: $(params.image)
+      workingDir: $(workspaces.output.path)
+      script: |
+        #!/bin/sh
+
+        printf "Report file data:\n"
+        jq . $(params.output-file-path)
+
+        exit_code=$(jq -r '.exit_code' $(params.output-file-path))
+        if [ "$exit_code" = "1" ]; then
+          printf "\nBUILD FAILED: Failed to generate Dependency Analysis Report" 
+          exit 1
+        fi
+
+        tot_vul=$(jq .report.total_vulnerabilities  $(params.output-file-path))
+        if [ $tot_vul -ge  1 ]; then
+          printf "\nBUILD FAILED: Total vulnerability count is: $tot_vul"
+          exit 1
+        else
+          printf "\nBUILD PASSED: Total vulnerability count is 0"
+        fi
