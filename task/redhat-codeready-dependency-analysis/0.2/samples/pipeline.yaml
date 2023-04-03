@@ -4,7 +4,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: crda-stack-analysis-pipeline
+  name: redhat-codeready-dependency-analysis-pipeline
 
 spec:
   workspaces:
@@ -17,7 +17,7 @@ spec:
       default: pom.xml
 
     - name: output-file-path
-      default: crda-stack-analysis-report.json
+      default: redhat-codeready-dependency-analysis-report.json
 
     - name: pkg-installation-directory-path
       default: application-package
@@ -28,9 +28,9 @@ spec:
 # Pipeline steps
   tasks:
     # Task to download application.
-    - name: pre-setup-task
+    - name: pre-task-setup
       taskRef:
-        name: pre-setup-task
+        name: pre-task-setup
       workspaces:
         - name: output
           workspace: output
@@ -41,11 +41,11 @@ spec:
           value: $(params.pkg-installation-directory-path)
 
     # Task to create stack analysis report
-    - name: crda-stack-analysis-task
+    - name: redhat-codeready-dependency-analysis-task
       taskRef:
-        name: crda-stack-analysis-task
+        name: redhat-codeready-dependency-analysis-task
       runAfter:
-        - pre-setup-task
+        - pre-task-setup
       workspaces:
         - name: output
           workspace: output
@@ -61,11 +61,11 @@ spec:
 
 
     # Task to view result and make decision about build.
-    - name: post-evaluation-task
+    - name: post-task-setup
       taskRef:
-        name: post-evaluation-task
+        name: post-task-setup
       runAfter:
-        - crda-stack-analysis-task
+        - redhat-codeready-dependency-analysis-task
       workspaces:
         - name: output
           workspace: output

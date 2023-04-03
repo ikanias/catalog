@@ -4,10 +4,10 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: crda-stack-analysis-pipeline-run
+  name: redhat-codeready-dependency-analysis-pipeline-run
 spec:
   pipelineRef:
-    name: crda-stack-analysis-pipeline
+    name: redhat-codeready-dependency-analysis-pipeline
   workspaces:
     - name: output
       persistentvolumeclaim:
@@ -16,11 +16,11 @@ spec:
 # Change link to https-github-url and manifest-file-name according to target repository
   params:
     - name: https-github-url
-      value: {{MANIFEST_FILE_URL}} # Replace with URL of manifest file to be scanned.
+      value: {{GITHUB_URL_TO_APPLICATION}} # Replace with HTTPS Github URL to application.
     - name: manifest-file-path
       value: pom.xml
     - name: output-file-path
-      value: crda-stack-analysis-report.json
+      value: redhat-codeready-dependency-analysis-report.json
     - name: pkg-installation-directory-path
       value: application-package
     - name: image

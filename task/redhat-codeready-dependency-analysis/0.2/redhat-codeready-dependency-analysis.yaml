@@ -2,7 +2,7 @@ apiVersion: tekton.dev/v1beta1
 kind: Task
 
 metadata:
-  name: crda-stack-analysis-task
+  name: redhat-codeready-dependency-analysis-task
   labels:
     app.kubernetes.io/version: "0.2"
   annotations:
@@ -22,10 +22,10 @@ spec:
 
     - name: output-file-path
       description: Path of the file to save analysis report.
-      default: crda-stack-analysis-report.json
+      default: redhat-codeready-dependency-analysis-report.json
 
     - name: pkg-installation-directory-path
-      description: Path of a directory in workspace, where applicaion is downloaded.
+      description: Path of a directory in workspace, where applicaion resources are downloaded.
       default: application-package
 
     - name: image
@@ -38,7 +38,7 @@ spec:
   workspaces:
     - name: output
   steps:
-    - name: crda-stack-analysis
+    - name: redhat-codeready-dependency-analysis
       image: $(params.image)
       workingDir: $(workspaces.output.path)
       env:

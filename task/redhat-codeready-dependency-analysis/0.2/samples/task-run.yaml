@@ -3,10 +3,10 @@
 apiVersion: tekton.dev/v1beta1
 kind: TaskRun
 metadata:
-  name: crda-stack-analysis-task-run
+  name: redhat-codeready-dependency-analysis-task-run
 spec:
   taskRef:
-    name: crda-stack-analysis-task
+    name: redhat-codeready-dependency-analysis-task
 
   workspaces:
     - name: output
@@ -17,7 +17,7 @@ spec:
     - name: manifest-file-path
       value: pom.xml
     - name: output-file-path
-      value: crda-stack-analysis-report.json
+      value: redhat-codeready-dependency-analysis-report.json
     - name: pkg-installation-directory-path
       value: application-package
     - name: image

@@ -2,7 +2,7 @@ apiVersion: tekton.dev/v1beta1
 kind: Task
 
 metadata:
-  name: pre-setup-task
+  name: pre-task-setup
 spec:
   params:
     - name: https-github-url

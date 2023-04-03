@@ -2,11 +2,11 @@ apiVersion: tekton.dev/v1beta1
 kind: Task
 
 metadata:
-  name: post-evaluation-task
+  name: post-task-setup
 spec:
   params:
     - name: output-file-path
-      default: crda-stack-analysis-report.json
+      default: redhat-codeready-dependency-analysis-report.json
     - name: image
       default: quay.io/ecosystem-appeng/crda-maven:1.0
   workspaces:
