@@ -7,9 +7,7 @@ metadata:
 spec:
   params:
     - name: output-file-path
-      default: redhat-codeready-dependency-analysis-report.json
     - name: image
-      default: ghcr.io/fabric8-analytics/crda-python:3.7
   steps:
     - name: post-task-setup
       image: $(params.image)
@@ -20,12 +18,18 @@ spec:
         printf "Report file data:\n"
         jq . $(params.output-file-path)
 
-        value=$(jq .report.total_vulnerabilities  $(params.output-file-path))
+        exit_code=$(jq -r '.exit_code' $(params.output-file-path))
+        if [ "$exit_code" = "1" ]; then
+          printf "\nBUILD FAILED: Failed to generate Dependency Analysis Report" 
+          exit 1
+        fi
 
-        if [ $value -ge  5 ]; then
-          printf "\nBUILD FAILED: Vulnerability count is more than threshold value."
+        tot_vul=$(jq .report.total_vulnerabilities  $(params.output-file-path))
+        if [ $tot_vul -ge  1 ]; then
+          printf "\nBUILD FAILED: Total vulnerability count is: $tot_vul"
+          exit 1
         else
-          printf "\nBUILD PASSED: Vulnerability count is less than threshold value"
+          printf "\nBUILD PASSED: Total vulnerability count is 0"
         fi
 
   workspaces:

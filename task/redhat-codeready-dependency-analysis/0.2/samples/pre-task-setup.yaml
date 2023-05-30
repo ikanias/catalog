@@ -6,13 +6,9 @@ metadata:
   name: pre-task-setup
 spec:
   params:
-    - name: file_url
-    - name: manifest-file-path
-      default: requirements.txt
+    - name: https-git-url
     - name: pkg-installation-directory-path
-      default: site-package
     - name: image
-      default: ghcr.io/fabric8-analytics/crda-python:3.7
   steps:
     - name: pre-task-setup
       image: $(params.image)
@@ -20,9 +16,16 @@ spec:
       script: |
         #!/bin/sh
 
+        # init clean application directory
+        if [ -d $(params.pkg-installation-directory-path) ]; then
+          echo "Removing existing folder: $(params.pkg-installation-directory-path)..."
+          rm -r $(params.pkg-installation-directory-path)
+        fi
+
         mkdir -p $(params.pkg-installation-directory-path)
-        curl $(params.file_url) --output $(params.manifest-file-path)
-        pip3 install --target=$(params.pkg-installation-directory-path) \
-        -r $(params.manifest-file-path) --upgrade
+
+        # clone repository to application directory
+        git clone $(params.https-git-url) $(params.pkg-installation-directory-path)
+
   workspaces:
     - name: output

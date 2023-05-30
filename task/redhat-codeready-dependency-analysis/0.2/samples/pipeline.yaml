@@ -11,17 +11,6 @@ spec:
   workspaces:
     - name: output
 
-  params:
-    - name: file_url
-    - name: pkg-installation-directory-path
-      default: site-package
-    - name: manifest-file-path
-      default: requirements.txt
-    - name: output-file-path
-      default: redhat-codeready-dependency-analysis-report.json
-    - name: image
-      default: ghcr.io/fabric8-analytics/crda-python:3.7
-
 # Pipeline steps
   tasks:
     # Task to download manifest and install its dependencies.
@@ -32,12 +21,10 @@ spec:
         - name: output
           workspace: output
       params:
-        - name: file_url
-          value: $(params.file_url)
+        - name: https-git-url
+          value: $(params.https-git-url)
         - name: pkg-installation-directory-path
           value: $(params.pkg-installation-directory-path)
-        - name: manifest-file-path
-          value: $(params.manifest-file-path)
         - name: image
           value: $(params.image)
 
@@ -55,10 +42,10 @@ spec:
           value: $(params.pkg-installation-directory-path)
         - name: manifest-file-path
           value: $(params.manifest-file-path)
-        - name: image
-          value: $(params.image)
         - name: output-file-path
           value: $(params.output-file-path)
+        - name: image
+          value: $(params.image)
 
 
     # Task to view result and make decision about build.

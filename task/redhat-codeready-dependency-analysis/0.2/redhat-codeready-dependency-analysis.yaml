@@ -14,7 +14,7 @@ metadata:
 spec:
   description: >-
     The RedHat CodeReady Dependency Analysis task is an interface between Tekton and Red Hat CodeReady Dependency Analytics platform.
-    It provides vulnerability and compliance analysis for your Python applications dependencies, along with recommendations to address security vulnerabilities and licensing issues.
+    It provides vulnerability and compliance analysis for applications dependencies, along with recommendations to address security vulnerabilities and licensing issues.
 
   workspaces:
     - name: output
@@ -23,41 +23,65 @@ spec:
   params:
     - name: manifest-file-path
       description: Path of target manifest file to perform analysis.
-      default: requirements.txt
 
     - name: output-file-path
-      description: Path of the file to save analysis report.
-      default: redhat-codeready-dependency-analysis-report.json
+      description: Path to the file in workspace, where the analysis report is saved.
 
     - name: pkg-installation-directory-path
-      description: Path of a directory in workspace, where dependencies are installed.
-      default: site-package
+      description: Path to the directory in workspace, where the application is installed.
 
     - name: image
       description: Image where CRDA CLI binary and required applications are installed.
-      default: ghcr.io/fabric8-analytics/crda-python:3.7
 
     - name: CRDA_HOST_URL
       description: The CRDA host, adjust this if you use an on premise environment.
-      default: ""
+      default: ''
+
+    - name: CONSENT_TELEMETRY
+      description: The CRDA consent telemetry.
+      default: 'false'
 
   steps:
     - name: redhat-codeready-dependency-analysis
       image: $(params.image)
       workingDir: $(workspaces.output.path)
       env:
+        - name: AUTH_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: crda
+              key: AUTH_TOKEN
         - name: CRDA_KEY
           valueFrom:
             secretKeyRef:
               name: crda
-              key: crda-key
+              key: CRDA_KEY
         - name: HOST
           value: $(params.CRDA_HOST_URL)
+        - name: TELEMETRY
+          value: $(params.CONSENT_TELEMETRY)
+        - name: ECOSYSTEM
 
       script: |
         #!/bin/sh
 
+        manifest=$(basename "$(params.manifest-file-path)")
+
+        if [ "$manifest" = "requirements.txt" ]; then
+          export ECOSYSTEM="python3"
+        elif [ "$manifest" = "pom.xml" ]; then
+          export ECOSYSTEM="maven"
+        elif [ "$manifest" = "package.json" ]; then
+          export ECOSYSTEM="npm"
+        elif [ "$manifest" = "go.mod" ]; then
+          export ECOSYSTEM="golang"
+        else
+          echo "Unsupported file: $manifest"
+          exit 1
+        fi
+
+        echo "ECOSYSTEM: $ECOSYSTEM"
+
         sh /crda.sh \
-        $(params.manifest-file-path) \
-        $(params.output-file-path) \
-        $(params.pkg-installation-directory-path)
+        $(echo $(params.pkg-installation-directory-path)/$(params.manifest-file-path)) \
+        $(params.output-file-path)

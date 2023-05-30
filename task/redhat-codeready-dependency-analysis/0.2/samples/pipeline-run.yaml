@@ -6,7 +6,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: redhat-codeready-dependency-analysis-pipeline
+  name: redhat-codeready-dependency-analysis-pipelinerun
 spec:
   pipelineRef:
     name: redhat-codeready-dependency-analysis-pipeline
@@ -15,15 +15,15 @@ spec:
       persistentvolumeclaim:
         claimName: output
 
-# Change link to git_url and manifest-file-name according to target repository
+# Change link to https-git-url and manifest-file-path according to target repository
   params:
-    - name: file_url
-      value: {{MANIFEST_FILE_URL}} # Replace it with URL of manifest file to be scanned for demo.
-    - name: pkg-installation-directory-path
-      value: site-package
+    - name: https-git-url
+      value: {{HTTPS_GIT_URL}} # Replace it with URL of manifest file to be scanned for demo.
     - name: manifest-file-path
-      value: requirements.txt
+      value: {{MANIFEST_FILE_PATH}}   
+    - name: pkg-installation-directory-path
+      value: application-package
     - name: output-file-path
       value: redhat-codeready-dependency-analysis-report.json
     - name: image
-      value: ghcr.io/fabric8-analytics/crda-python:3.7
+      value: quay.io/ecosystem-appeng/crda:1.0
