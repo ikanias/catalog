@@ -1,0 +1,37 @@
+# End to end pipeline.
+# Make sure Workspace is attached and Secret is created,
+# also configure 'pre-task-setup' and 'post-task-setup' tasks before running the pipeline.
+# refer examples from samples
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: redhat-codeready-dependency-analysis-pipeline
+
+spec:
+  workspaces:
+    - name: output
+
+  params:
+  - name: https-git-url
+  - name: manifest-file-path
+  - name: pkg-installation-directory-path
+  - name: output-file-path
+
+# Pipeline steps
+  tasks:
+    # redhat-codeready-dependency-analysis task
+    - name: redhat-codeready-dependency-analysis
+      taskRef:
+        name: redhat-codeready-dependency-analysis
+      workspaces:
+        - name: output
+          workspace: output
+      params:
+        - name: https-git-url
+          value: $(params.https-git-url)
+        - name: manifest-file-path
+          value: $(params.manifest-file-path)
+        - name: pkg-installation-directory-path
+          value: $(params.pkg-installation-directory-path)
+        - name: output-file-path
+          value: $(params.output-file-path)

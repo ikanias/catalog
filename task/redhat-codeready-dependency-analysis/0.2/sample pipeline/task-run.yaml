@@ -13,12 +13,13 @@ spec:
       persistentvolumeclaim:
         claimName: output
 
+  # Change link to https-git-url and manifest-file-path according to target repository
   params:
+    - name: https-git-url
+      value: https://github.com/bmozaffa/postgresql-vulnerability-example.git # Replace with HTTPS Github URL to application repository.
     - name: manifest-file-path
-      value: {{MANIFEST_FILE_PATH}}     
+      value: pom.xml # Replace with path to manifest file
     - name: pkg-installation-directory-path
       value: application-package
     - name: output-file-path
       value: redhat-codeready-dependency-analysis-report.json
-    - name: image
-      value: quay.io/ecosystem-appeng/crda:1.0
