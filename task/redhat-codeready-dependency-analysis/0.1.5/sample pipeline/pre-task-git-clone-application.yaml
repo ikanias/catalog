@@ -1,0 +1,29 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: git-clone-application
+spec:
+  workspaces:
+    - name: output
+  params:
+    - name: https-git-url
+    - name: pkg-installation-directory-path
+  steps:
+    - name: git-clone-application
+      image: alpine/git
+      workingDir: $(workspaces.output.path)
+      script: |
+        #!/bin/sh
+
+        # init clean application directory
+        if [ -d $(params.pkg-installation-directory-path) ]; then
+          echo "Cleaning existing directory: $(params.pkg-installation-directory-path)..."
+          rm -r $(params.pkg-installation-directory-path)
+        fi
+
+        # creating new application directory 
+        mkdir -p $(params.pkg-installation-directory-path)
+
+        # clone repository to application directory
+        git clone $(params.https-git-url) $(params.pkg-installation-directory-path)
+

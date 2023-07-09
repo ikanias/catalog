@@ -1,37 +1,49 @@
 # End to end pipeline.
 # Make sure Workspace is attached and Secret is created,
-# also configure 'pre-task-setup' and 'post-task-setup' tasks before running the pipeline.
-# refer examples from samples
+# also configure 'pre-task-git-clone-application' tasks before running the pipeline.
+
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
   name: redhat-codeready-dependency-analysis-pipeline
-
 spec:
   workspaces:
     - name: output
-
   params:
   - name: https-git-url
   - name: manifest-file-path
   - name: pkg-installation-directory-path
   - name: output-file-path
-
+  - name: image
 # Pipeline steps
   tasks:
-    # redhat-codeready-dependency-analysis task
-    - name: redhat-codeready-dependency-analysis
+    # git-clone-application task
+    - name: git-clone-application
       taskRef:
-        name: redhat-codeready-dependency-analysis
+        name: git-clone-application
       workspaces:
         - name: output
           workspace: output
       params:
         - name: https-git-url
           value: $(params.https-git-url)
+        - name: pkg-installation-directory-path
+          value: $(params.pkg-installation-directory-path)
+    # redhat-codeready-dependency-analysis task
+    - name: redhat-codeready-dependency-analysis
+      taskRef:
+        name: redhat-codeready-dependency-analysis
+      runAfter:
+        - git-clone-application
+      workspaces:
+        - name: output
+          workspace: output
+      params:
         - name: manifest-file-path
           value: $(params.manifest-file-path)
         - name: pkg-installation-directory-path
           value: $(params.pkg-installation-directory-path)
         - name: output-file-path
           value: $(params.output-file-path)
+        - name: image
+          value: $(params.image)

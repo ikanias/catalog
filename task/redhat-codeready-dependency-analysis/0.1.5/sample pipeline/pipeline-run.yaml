@@ -1,7 +1,6 @@
 # PipelineRun for starting pipeline
 # Make sure Workspace is attached and Secret is created,
-# also configure 'pre-task-setup' and 'post-task-setup' tasks before running the pipeline.
-# refer examples from samples
+# also configure 'pre-task-git-clone-application' tasks before running the pipeline.
 
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
@@ -12,16 +11,18 @@ spec:
     name: redhat-codeready-dependency-analysis-pipeline
   workspaces:
     - name: output
+      description: Volume backing this workspace is used for input/output of the task.
       persistentvolumeclaim:
         claimName: output
-
   # Change link to https-git-url and manifest-file-path according to target repository
   params:
     - name: https-git-url
-      value: https://github.com/bmozaffa/postgresql-vulnerability-example.git # Replace with HTTPS Github URL to application repository.
+      value: {{HTTPS_GIT_URL}} # Replace with HTTPS Github URL to application repository.
     - name: manifest-file-path
-      value: pom.xml # Replace with path to manifest file
+      value: {{MANIFEST_FILE_PATH}} # Replace with path to manifest file
     - name: pkg-installation-directory-path
       value: application-package
     - name: output-file-path
       value: redhat-codeready-dependency-analysis-report.json
+    - name: image
+      value: {{IMAGE}} # Replace with base image where CRDA Javascript API and required dependencies are installed.
