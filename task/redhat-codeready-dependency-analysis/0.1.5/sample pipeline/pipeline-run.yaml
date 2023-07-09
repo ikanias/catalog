@@ -10,19 +10,19 @@ spec:
   pipelineRef:
     name: redhat-codeready-dependency-analysis-pipeline
   workspaces:
+      # Volume backing this workspace is used for input/output of the task.
     - name: output
-      description: Volume backing this workspace is used for input/output of the task.
       persistentvolumeclaim:
         claimName: output
   # Change link to https-git-url and manifest-file-path according to target repository
   params:
     - name: https-git-url
-      value: {{HTTPS_GIT_URL}} # Replace with HTTPS Github URL to application repository.
+      value: https://github.com/bmozaffa/postgresql-vulnerability-example.git # Replace with HTTPS Github URL to application repository.
     - name: manifest-file-path
-      value: {{MANIFEST_FILE_PATH}} # Replace with path to manifest file
+      value: pom.xml # Replace with path to manifest file
     - name: pkg-installation-directory-path
       value: application-package
     - name: output-file-path
       value: redhat-codeready-dependency-analysis-report.json
     - name: image
-      value: {{IMAGE}} # Replace with base image where CRDA Javascript API and required dependencies are installed.
+      value: quay.io/ishishov/crda-javascript-api:1.39 # Replace with base image where CRDA Javascript API and required dependencies are installed.

@@ -8,6 +8,7 @@ spec:
   taskRef:
     name: redhat-codeready-dependency-analysis
   workspaces:
+    # Volume backing this workspace is used for input/output of the task.
     - name: output
       persistentvolumeclaim:
         claimName: output
