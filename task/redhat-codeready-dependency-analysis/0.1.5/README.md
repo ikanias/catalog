@@ -1,5 +1,5 @@
 # `redhat-codeready-dependency-analysis`
-**Please Note: this Task is only compatible with Tekton Pipelines versions 0.19.0 and greater!**
+**Note: this Task is only compatible with Tekton Pipelines versions 0.19.0 and greater!**
 
 ## Overview
 The redhat-codeready-dependency-analysis task is an interface between Tekton and Red Hat CodeReady Dependency Analytics platform. 
@@ -7,115 +7,127 @@ It provides vulnerability and compliance analysis for your applications dependen
 
 This task reflects [Dependency Analytics VS Code plugin](https://marketplace.visualstudio.com/items?itemName=redhat.fabric8-analytics) for Tekton Pipelines.
 
-**Please Note: Currently this Task supports Python ecosystem, support for other ecosystems will be provided very soon.**
+**Note: Currently this Task only supports Maven ecosystem, support for other ecosystems will be provided very soon.**
 
 ## Prerequisite
 
-#### 1. Creation of Workspace
-Workspace is used as a common filesystem between tasks and used for inputs and outputs of task, in workspace dependencies are installed for further usage while running the task.
+#### 1. Workspace
+Workspace is used as a common filesystem between tasks. It provides a designated area for the input, output, and intermediate files used during the execution of the pipeline by the redhat-codeready-dependency-analysis task.
 
-This [sample](../0.1/samples/workspace.yaml) can be referred to create a workspace.<br />
+This [sample](sample/workspace.yaml) file can be referred to in order to create a workspace.
 
-#### 2. Manifest File
-This task scans manifest file (ex. requirements.txt, requirements-dev.txt etc.) for collecting a list of dependencies, hence prior to this task, target manifest file must be placed by user into workspace. 
-The path to manifest is passed as parameters to task.
-
-#### 3. Dependency Installation
-Users need to install dependencies from manifest into a directory of workspace. 
-Location of installation directory in workspace is required as parameter in the task.
-
-#### 4. Adding Secret
-To authenticate a user this task uses CRDA user key. 
-This key should be saved in secrets, but before that users need to generate it.<br />
-This is a one time activity to perform. 
-
-Here are the steps to generate a CRDA user key.<br />
-1. Install CRDA CLI from [here](https://github.com/fabric8-analytics/cli-tools/releases).
-2. Run `crda auth` command, and it will assign user a unique id, which can be found in `~/.crda/config.yaml`. 
-Users need to store the value of `crda_key` into a `Secret` to run the task.
-<br />
-This [sample](../0.1/samples/secret.yaml) can be referred to create a secret file, replace `{{ CRDA_USER_KEY }}` with the generated CRDA key before running.
-<br />
-Following command can be used to create workspace from the file.
+The following command can be used to create a workspace from the sample file.
 
 ```
-kubectl apply -f secret.yaml -n <NAMESPACE>
+kubectl apply -f sample/workspace.yaml -n <NAMESPACE>
+```
+
+#### 2. Manifest
+The redhat-codeready-dependency-analysis task scans dependency manifest files (ex. pom.xml, requirements.txt etc.) for vulnerabilities by first collecting them from the manifest file itself. In order for the task to do so, it is necessary to place the target manifest file into workspace prior to running this task. 
+The path to the manifest file must be passed as a parameter to the task.
+
+#### 3. Secret
+The redhat-codeready-dependency-analysis task uses the `CRDA_SNYK_TOKEN` token to authenticate with Snyk (vulnerability data provider).
+This Token must be saved in a secret by the name of `crda`.<br />
+To generate a new Snyk token please visit the following [link](https://app.snyk.io/login?utm_campaign=Code-Ready-Analytics-2020&utm_source=code_ready&code_ready=FF1B53D9-57BE-4613-96D7-1D06066C38C9.).
+
+This [sample](sample/secret.yaml) file can be referred to in order to create a secret, replace `{{ CRDA_SNYK_TOKEN }}` with the generated Snyk token before running.
+
+The following command can be used to create a secret from the sample file.
+
+```
+kubectl apply -f sample/secret.yaml -n <NAMESPACE>
 ```
 
 ## Task Parameters
-- **manifest-file-path**: Path of target manifest file to perform analysis. `(default: requirements.txt)`
-- **output-file-name**: Path of the file to save analysis report. `(default: redhat-codeready-dependency-analysis-report.json)`
-- **pkg-installation-directory**: Path of a directory in workspace, where dependencies are installed. `(default: site-package)`
-- **image**: Image where CRDA CLI binary and required applications are installed. `(default: ghcr.io/fabric8-analytics/crda-python:3.7)`. <br />List of images for different ecosystem and versions can be found [here](https://github.com/fabric8-analytics/crda-images/blob/main/README.md)
-- **CRDA_HOST_URL**: CRDA host, adjust this if you are using an on premise CRDA environment. `(default: "")`
+- **manifest-file-path**: Path to target manifest file within the project directory to perform analysis upon.
+- **pkg-installation-directory**: Path to directory within workspace, where the project is installed. `(default: project-package)`
+- **output-file-name**: Path to file within workspace, where the analysis report is saved. `(default: redhat-codeready-dependency-analysis-report.json)`
+- **image**: Image where CRDA Javascript API and required dependencies are installed. `(default: quay.io/ecosystem-appeng/crda-javascript-api:1.0)`. <br />
+List of images for different ecosystem and versions can be found [here](https://github.com/fabric8-analytics/crda-images)
 
-## Sample Output
+## Output
+The response of the redhat-codeready-dependency-analysis task is saved in JSON format within the workspace directory under file name defined by parameter `output-file-name`. <br />
+This response provides both a summary and a comprehensive report detailing all discovered vulnerabilities. <br />
+The provided response may be used by a subsequent task for decision making, such as Passing or Failing a build.  
 
-Result of the task is saved as JSON format in the workspace directory having manifest file. 
+In the logs, a simplified report summary will be displayed, example:
 ```
-{
-  "report": {
-    "total_scanned_dependencies": 20,
-    "total_scanned_transitives": 58,
-    "total_vulnerabilities": 15,
-    "direct_vulnerable_dependencies": 8,
-    "publicly_available_vulnerabilities": 10,
-    "vulnerabilities_unique_to_snyk": 5,
-    "critical_vulnerabilities": 3,
-    "high_vulnerabilities": 3,
-    "medium_vulnerabilities": 4,
-    "low_vulnerabilities": 5,
-    "report_link": "https://recommender.api.openshift.io/api/v2/stack-report/bc52c6b406f646bc84ed24fb24f5bdc9"
-  },
-  "exit_code": 2
-}
-
-```
-This JSON data is having details about vulnerabilities and a link to view a detailed report is also provided. This JSON can be used by next task for making a decision to Fail/Pass the build.  
-
-In the logs, a simplified report is shown, below is a sample report given in log.
-
-```
-=============================================
+RedHat CodeReady Dependency Analysis task is being executed.
+==================================================
 RedHat CodeReady Dependency Analysis Report
-=============================================
-Total Scanned Dependencies            :  6 
-Total Scanned Transitive Dependencies :  38 
-Total Vulnerabilities                 :  6 
-Direct Vulnerable Dependencies        :  3 
-Publicly Available Vulnerabilities    :  6 
-Vulnerabilities Unique to Snyk        :  0 
+==================================================
+Total Scanned Dependencies            :  10 
+Total Scanned Transitive Dependencies :  218 
+Total Vulnerabilities                 :  22 
+Direct Vulnerable Dependencies        :  5 
+Snyk Provider Status                  :  OK 
 Critical Vulnerabilities              :  1 
-High Vulnerabilities                  :  5 
-Medium Vulnerabilities                :  0 
-Low Vulnerabilities                   :  0 
-=============================================
-
-Open this link to see detailed report:
-https://recommender.api.openshift.io/api/v2/stack-report/bc52c6b406f646bc84ed24fb24f5bdc9 
-
-Report is saved into file: <workspace>/redhat-codeready-dependency-analysis-report.json
+High Vulnerabilities                  :  3 
+Medium Vulnerabilities                :  12 
+Low Vulnerabilities                   :  6 
+==================================================
+Full report is saved into file: redhat-codeready-dependency-analysis-report.json
 Task is completed.
 ```
 
-The link to detailed report will take users to a browser window having similar format as [Dependency Analytics VS Code plugin](https://marketplace.visualstudio.com/items?itemName=redhat.fabric8-analytics). <br /> To view premium vulnerability data, users can register with Snyk token.
-
-![Alt Text](https://raw.githubusercontent.com/fabric8-analytics/fabric8-analytics-vscode-extension/master/images/0.3.0/reg-stack-analysis.gif)
-
-## Install the Task
+## Installing the Task
 ```
-kubectl apply -f https://api.hub.tekton.dev/v1/resource/tekton/task/redhat-codeready-dependency-analysis/0.1/raw -n <NAMESPACE>
+kubectl apply -f https://api.hub.tekton.dev/v1/resource/tekton/task/redhat-codeready-dependency-analysis/0.1.5/raw -n <NAMESPACE>
 ```
 
 ## Platforms
 
 The Task can be run on `linux/amd64` platform.
 
-## Usage
+## Usage Demo
 
-This task expects a secret named `crda` to exist with a valid CRDA user key in `crda-key`, an attached workspace having target manifest file and its dependencies installed in a directory.
+An example PipelineRun and TaskRun are provided in the `samples` directory in order to demonstrate the usage of the redhat-codeready-dependency-analysis task. 
 
-The following PipelineRun and TaskRun demonstrate usage of the  Task. Please configure required components like workspace, secrets, tasks from YAMLs from `samples` directory:
+### Deployment Instructions:
 
-- [Usage of redhat-codeready-dependency-analysis task in an end to end pipeline. (configure secret, workspace, pre-task-setup, post-task-setup and pipeline from YAML provided in samples)](../0.1/samples/pipeline-run.yaml)
-- [Running stand alone redhat-codeready-dependency-analysis task, assuming manifest file is already placed in workspace and dependencies are installed in a directory of workspace.](../0.1/samples/task-run.yaml)
+1. Deploy a new workspace with [workspace.yaml](sample/workspace.yaml), run:
+```
+kubectl apply -f sample/workspace.yaml -n <NAMESPACE>
+```
+
+2. In [secret.yaml](sample/secret.yaml), first replace `{{ CRDA_SNYK_TOKEN }}` with a generated Snyk token, then create the secret, run:
+```
+kubectl apply -f sample/secret.yaml -n <NAMESPACE>
+```
+
+3. Deploy the redhat-codeready-dependency-analysis task with [redhat-codeready-dependency-analysis.yaml](redhat-codeready-dependency-analysis.yaml), run:
+```
+kubectl apply -f redhat-codeready-dependency-analysis.yaml -n <NAMESPACE>
+```
+
+#### For PipelineRun:
+
+1. Deploy the git-clone-project pre task with [pre-task-git-clone-project.yaml](sample/pre-task-git-clone-project.yaml), run:
+```
+kubectl apply -f sample/pre-task-git-clone-project.yaml -n <NAMESPACE>
+```
+
+2. Deploy the ripeline with [pipeline.yaml](sample/pipeline.yaml), run:
+```
+kubectl apply -f sample/pipeline.yaml -n <NAMESPACE>
+```
+
+3. In [pipeline-run.yaml](sample/pipeline-run.yaml), first replace `{{ HTTPS_GIT_URL }}` with the HTTPS Github URL to the project repository where the target manifest file resides, next replace `{{ MANIFEST_FILE_PATH }}` with the path to the target manifest file within the project directory, finally create the pipelinerun, run:
+```
+kubectl apply -f sample/pipeline-run.yaml -n <NAMESPACE>
+```
+
+#### For TaskRun:
+
+1. Within workspace, create a new project directory (update parameter `project-directory-path` if needed).
+
+2. Store the target manifest file into a desired location inside the project directory.
+
+2. In [task-run.yaml](sample/task-run.yaml), replace `{{ MANIFEST_FILE_PATH }}` with the path to the target manifest file within the project directory, then create the taskrun, run:
+```
+kubectl apply -f sample/task-run.yaml -n <NAMESPACE>
+```
+
+<small>**NOTE:** The redhat-codeready-dependency-analysis task expects to have a secret by the name of `crda` configured with the `CRDA_SNYK_TOKEN` key, 
+as well as an attached workspace with the target manifest file stored within.</small>

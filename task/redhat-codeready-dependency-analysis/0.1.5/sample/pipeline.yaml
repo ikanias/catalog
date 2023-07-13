@@ -1,6 +1,6 @@
 # End to end pipeline.
 # Make sure Workspace is attached and Secret is created,
-# also configure 'pre-task-git-clone-application' tasks before running the pipeline.
+# also configure 'pre-task-git-clone-project' task before running the pipeline.
 
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
@@ -12,37 +12,37 @@ spec:
   params:
   - name: https-git-url
   - name: manifest-file-path
-  - name: pkg-installation-directory-path
+  - name: project-directory-path
   - name: output-file-path
   - name: image
-# Pipeline steps
+  # Pipeline steps
   tasks:
-    # git-clone-application task
-    - name: git-clone-application
+    # git-clone-project task
+    - name: git-clone-project
       taskRef:
-        name: git-clone-application
+        name: git-clone-project
       workspaces:
         - name: output
           workspace: output
       params:
         - name: https-git-url
           value: $(params.https-git-url)
-        - name: pkg-installation-directory-path
-          value: $(params.pkg-installation-directory-path)
+        - name: project-directory-path
+          value: $(params.project-directory-path)
     # redhat-codeready-dependency-analysis task
     - name: redhat-codeready-dependency-analysis
       taskRef:
         name: redhat-codeready-dependency-analysis
       runAfter:
-        - git-clone-application
+        - git-clone-project
       workspaces:
         - name: output
           workspace: output
       params:
         - name: manifest-file-path
           value: $(params.manifest-file-path)
-        - name: pkg-installation-directory-path
-          value: $(params.pkg-installation-directory-path)
+        - name: project-directory-path
+          value: $(params.project-directory-path)
         - name: output-file-path
           value: $(params.output-file-path)
         - name: image

@@ -22,16 +22,19 @@ spec:
 
   params:
     - name: manifest-file-path
-      description: Path to target manifest file to perform analysis.
+      description: Path to target manifest file within the project directory.
 
-    - name: pkg-installation-directory-path
-      description: Path to the directory in workspace, where the application is installed.
+    - name: project-directory-path
+      description: Path to directory within workspace, where the project is installed.
+      default: project-package
 
     - name: output-file-path
-      description: Path to the file in workspace, where the analysis report is saved.
+      description: Path to file within workspace, where the analysis report is saved.
+      default: redhat-codeready-dependency-analysis-report.json
 
     - name: image
       description: Image where CRDA Javascript API and required dependencies are installed.
+      default: quay.io/ecosystem-appeng/crda-javascript-api:1.0
 
   steps:
     - name: redhat-codeready-dependency-analysis
@@ -47,5 +50,5 @@ spec:
         #!/bin/sh
 
         sh /crda.sh \
-          $(echo $(params.pkg-installation-directory-path)/$(params.manifest-file-path)) \
+          $(echo $(params.project-directory-path)/$(params.manifest-file-path)) \
           $(params.output-file-path)

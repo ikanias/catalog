@@ -1,6 +1,6 @@
 # PipelineRun for starting pipeline
 # Make sure Workspace is attached and Secret is created,
-# also configure 'pre-task-git-clone-application' tasks before running the pipeline.
+# also configure 'pre-task-git-clone-project' task before running the pipeline.
 
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
@@ -14,14 +14,13 @@ spec:
     - name: output
       persistentvolumeclaim:
         claimName: output
-  # Change link to https-git-url and manifest-file-path according to target repository
   params:
     - name: https-git-url
-      value: {{HTTPS_GIT_URL}} # Replace with HTTPS Github URL to application repository.
+      value: {{HTTPS_GIT_URL}} # Replace with HTTPS Github URL to project repository.
     - name: manifest-file-path
-      value: {{MANIFEST_FILE_PATH}} # Replace with path to manifest file
-    - name: pkg-installation-directory-path
-      value: application-package
+      value: {{MANIFEST_FILE_PATH}} # Replace with path to target manifest file within the project directory
+    - name: project-directory-path
+      value: project-package
     - name: output-file-path
       value: redhat-codeready-dependency-analysis-report.json
     - name: image
