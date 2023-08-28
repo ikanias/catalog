@@ -2,18 +2,18 @@ apiVersion: tekton.dev/v1beta1
 kind: Task
 
 metadata:
-  name: redhat-codeready-dependency-analysis
+  name: redhat-dependency-analysis
   labels:
     app.kubernetes.io/version: "0.1"
   annotations:
     tekton.dev/categories: Security
     tekton.dev/pipelines.minVersion: "0.19.0"
     tekton.dev/tags: Security, Vulnenrability, CVE
-    tekton.dev/displayName: "RedHat CodeReady Dependency Analysis"
+    tekton.dev/displayName: "Red Hat Dependency Analysis"
     tekton.dev/platforms: "linux/amd64"
 spec:
   description: >-
-    The RedHat CodeReady Dependency Analysis task is an interface between Tekton and Red Hat CodeReady Dependency Analytics platform.
+    The Red Hat Dependency Analysis task is an interface between Tekton and Red Hat Dependency Analytics platform.
     It provides vulnerability and compliance analysis for applications dependencies, along with recommendations to address security vulnerabilities and licensing issues.
 
   workspaces:
@@ -30,25 +30,25 @@ spec:
 
     - name: output-file-path
       description: Path to file within workspace, where the analysis report is saved.
-      default: redhat-codeready-dependency-analysis-report.json
+      default: redhat-dependency-analysis-report.json
 
     - name: image
-      description: Image where CRDA Javascript API and required dependencies are installed.
-      default: quay.io/ecosystem-appeng/crda-javascript-api:1.0
+      description: Image where Exhort Javascript API and required dependencies are installed.
+      default: quay.io/ecosystem-appeng/exhort-javascript-api:1.0-alpha
 
   steps:
-    - name: redhat-codeready-dependency-analysis
+    - name: redhat-dependency-analysis
       image: $(params.image)
       workingDir: $(workspaces.output.path)
       env:
-        - name: CRDA_SNYK_TOKEN
+        - name: EXHORT_SNYK_TOKEN
           valueFrom:
             secretKeyRef:
-              name: crda
-              key: CRDA_SNYK_TOKEN
+              name: exhort
+              key: EXHORT_SNYK_TOKEN
       script: |
         #!/bin/sh
 
-        sh /crda.sh \
+        sh /exhort.sh \
           $(echo $(params.project-directory-path)/$(params.manifest-file-path)) \
           $(params.output-file-path)
