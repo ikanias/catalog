@@ -1,0 +1,80 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+
+metadata:
+  name: redhat-dependency-analytics
+  labels:
+    app.kubernetes.io/version: "0.2"
+  annotations:
+    tekton.dev/categories: Security
+    tekton.dev/pipelines.minVersion: "0.37.5"
+    tekton.dev/tags: Security, Vulnenrability, CVE
+    tekton.dev/displayName: "Red Hat Dependency Analytics"
+    tekton.dev/platforms: "linux/amd64"
+spec:
+  description: >-
+    The Red Hat Dependency Analytics task is an interface between Tekton and Red Hat Dependency Analytics (RHDA) platform.
+    It provides vulnerability and compliance analysis for application dependencies in your software supply chain.
+
+  workspaces:
+    - name: output
+      description: Volume backing this workspace is used for input/output of the task.
+
+  params:
+    - name: manifest-file-path
+      description: Path to target manifest file within workspace.
+
+    - name: output-file-path
+      description: Path to file within workspace, where the analysis report is saved.
+      default: redhat-dependency-analytics-report.json
+
+    - name: image
+      description: Image where Exhort Javascript API and required dependencies are installed.
+      default: quay.io/ecosystem-appeng/exhort-javascript-api:0.7.3-alpha
+
+  steps:
+    - name: redhat-dependency-analytics
+      image: $(params.image)
+      workingDir: $(workspaces.output.path)
+      env:
+        - name: EXHORT_SNYK_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: exhort
+              key: EXHORT_SNYK_TOKEN
+        - name: RHDA_TOKEN
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.uid
+        - name: RHDA_SOURCE
+          value: tekton
+      script: |
+        #!/bin/sh
+
+        # if RHDA_TOKEN is not defined, generate a new UUID and assign it to RHDA_TOKEN
+        if [ -z "$RHDA_TOKEN" ]; then
+          RHDA_TOKEN=$(uuidgen)
+          export RHDA_TOKEN
+        fi
+        
+        # get task parameter values
+        MANIFEST_FILE_PATH="$(params.manifest-file-path)"
+        OUTPUT_FILE_PATH="$(params.output-file-path)"
+
+        # install dependencies for requirements.txt file
+        MANIFEST_FILE_BASENAME=$(basename "$MANIFEST_FILE_PATH")
+        if [ "$MANIFEST_FILE_BASENAME" = "requirements.txt" ]; then
+          pip3 install -r $MANIFEST_FILE_PATH 2>error.log >/dev/null
+          exit_code=$?
+          if [ $exit_code != 0 ]; then
+            # Print stderr message to console and exit
+            printf "\n[ERROR] Failed to install dependencies from requirements.txt with exit code $exit_code."
+            cat error.log
+            exit 1
+          fi
+        fi
+
+        # execute RHDA
+        sh /rhda.sh "$MANIFEST_FILE_PATH" "$OUTPUT_FILE_PATH"
+
+

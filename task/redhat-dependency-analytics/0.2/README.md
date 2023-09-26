@@ -3,14 +3,14 @@
 **Please Note: this Task is only compatible with Tekton Pipelines versions 0.37.5 and greater!**
 
 ## Overview
-The redhat-dependency-analytics task is an interface between Tekton and Red Hat Dependency Analytics (RHDA) platform version `0.7.0-alpha`. 
+The redhat-dependency-analytics task is an interface between Tekton and Red Hat Dependency Analytics (RHDA) platform version `0.7.3-alpha`. 
 It provides vulnerability and compliance analysis for your applications dependencies in your software supply chain.
 
 The redhat-dependency-analytics task for Tekton Pipelines utilizes the [Exhort JavaScript API](https://github.com/RHEcosystemAppEng/exhort-javascript-api), mirroring the functionality of the [VSCode Red Hat Dependency Analytics plugin](https://marketplace.visualstudio.com/items?itemName=redhat.fabric8-analytics).
 
-**Note: Currently this Task only supports Maven and NPM ecosystems, support for other ecosystems will be provided very soon.**
+**Note: Currently this Task only supports Maven (`mvn`), Node (`npm`), Golang (`go mod`) and Python (`pip`) ecosystems, support for other ecosystems will be provided very soon.**
 
-## Prerequisite
+## Prerequisites
 
 Prior to executing the redhat-dependency-analytics task, ensure that you have set up the two necessary components.
 
@@ -39,10 +39,9 @@ kubectl apply -f samples/secret.yaml -n <NAMESPACE>
 ```
 
 ## Parameters
-- **manifest-file-path**: Path to target manifest file (ex. pom.xml, package.json etc.) within the project directory to perform analysis upon.
-- **project-directory-path**: Path to directory within workspace where all project files are located or where project has been cloned to. `(default: project-package)`
+- **manifest-file-path**: Path to target manifest file (ex. pom.xml, package.json, go.mod, requirements.txt) within workspace to perform analysis upon.
 - **output-file-path**: Path to file within workspace where the Red Hat Dependency Analytics report will be saved. `(default: redhat-dependency-analytics-report.json)`
-- **image**: Image where Exhort Javascript API and required dependencies are installed. `(default: quay.io/ecosystem-appeng/exhort-javascript-api:0.7.0-alpha)`. 
+- **image**: Image where Exhort Javascript API and required dependencies are installed. `(default: quay.io/ecosystem-appeng/exhort-javascript-api:0.7.3-alpha)`. 
 
 List of images for different ecosystem versions can be found [here](https://github.com/RHEcosystemAppEng/exhort-javascript-api/tree/main/docker-image)
 
@@ -71,11 +70,13 @@ Full report is saved into file: redhat-dependency-analytics-report.json
 Task is completed.
 ```
 
+In case of failure, please refer to the `error.log` file within workspace for more information.
+
 ## Installation
 
 ### Install task on environment using kubectl
 ```
-kubectl apply -f https://raw.githubusercontent.com/tektoncd/catalog/main/task/redhat-dependency-analytics/0.1/redhat-dependency-analytics.yaml -n <NAMESPACE>
+kubectl apply -f https://raw.githubusercontent.com/tektoncd/catalog/main/task/redhat-dependency-analytics/0.2/redhat-dependency-analytics.yaml -n <NAMESPACE>
 ```
 
 ### Install task on environment using tkn
@@ -102,9 +103,7 @@ You can apply the specified task to resources such as TaskRun, Pipeline, and Pip
       workspace: output
   params:
     - name: manifest-file-path
-      value: /path/to/manifest/file/in/project/directory
-    - name: project-directory-path
-      value: /path/to/project/directory/in/workspace
+      value: /path/to/manifest/file/in/workspace
     - name: output-file-path
       value: /path/to/output/file/in/workspace
     - name: image
@@ -147,18 +146,16 @@ An example PipelineRun and TaskRun are provided in the `samples` directory in or
     kubectl apply -f samples/pipeline.yaml -n <NAMESPACE>
     ```
 
-1. In [pipeline-run.yaml](samples/pipeline-run.yaml), first replace `{{ GITHUB_URL }}` with the Github URL to the project repository where the target manifest file resides, next replace `{{ MANIFEST_FILE_PATH }}` with the path to the target manifest file within the project directory (e.g., "pom.xml" or "src/pom.xml"), finally create the pipelinerun, run:
+1. In [pipeline-run.yaml](samples/pipeline-run.yaml), first replace `{{ GITHUB_URL }}` with the Github URL to the project repository where the target manifest file resides, next replace `{{ MANIFEST_FILE_PATH }}` with the path to the target manifest file within workspace (e.g., "pom.xml" or "path/to/my/project/pom.xml"), finally create the pipelinerun, run:
     ```
     kubectl apply -f samples/pipeline-run.yaml -n <NAMESPACE>
     ```
 
 #### For TaskRun Example:
 
-1. Within workspace, create a new project directory (update parameter `project-directory-path` if needed).
+1. Store the target manifest file into a desired location inside workspace.
 
-1. Store the target manifest file into a desired location inside the project directory.
-
-1. In [task-run.yaml](samples/task-run.yaml), replace `{{ MANIFEST_FILE_PATH }}` with the path to the target manifest file within the project directory (e.g., "pom.xml" or "src/pom.xml"), then create the taskrun, run:
+1. In [task-run.yaml](samples/task-run.yaml), replace `{{ MANIFEST_FILE_PATH }}` with the path to the target manifest file within workspace (e.g., "pom.xml" or "path/to/my/project/pom.xml"), then create the taskrun, run:
     ```
     kubectl apply -f samples/task-run.yaml -n <NAMESPACE>
     ```
