@@ -10,7 +10,8 @@ spec:
   - name: github-url
   - name: manifest-file-path
   - name: output-file-path
-  - name: image
+  - name: rhda-image
+  - name: python-image
   tasks:
     - name: git-clone-project
       taskRef:
@@ -34,8 +35,10 @@ spec:
           value: $(params.manifest-file-path)
         - name: output-file-path
           value: $(params.output-file-path)
-        - name: image
-          value: $(params.image)
+        - name: rhda-image
+          value: $(params.rhda-image)
+        - name: python-image
+          value: $(params.python-image)
 ---
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
@@ -55,5 +58,7 @@ spec:
       value: pom.xml
     - name: output-file-path
       value: redhat-dependency-analytics-report.json
-    - name: image
-      value: quay.io/ecosystem-appeng/exhort-javascript-api:0.7.3-alpha
+    - name: rhda-image
+      value: quay.io/ecosystem-appeng/exhort-javascript-api:0.1.1-ea.14
+    - name: python-image
+      value: python:3.11
