@@ -18,5 +18,7 @@ spec:
       value: {{MANIFEST_FILE_PATH}} # Replace with path to target manifest file within the worspace (e.g., "pom.xml" or "path/to/my/project/pom.xml")
     - name: output-file-path
       value: redhat-dependency-analytics-report.json
-    - name: image
-      value: quay.io/ecosystem-appeng/exhort-javascript-api:0.7.3-alpha # Replace with base image where Exhort Javascript API and required dependencies are installed.
+    - name: rhda-image
+      value: quay.io/ecosystem-appeng/exhort-javascript-api:0.1.1-ea.8 # Replace with base image where Exhort Javascript API and required dependencies are installed.
+    - name: python-image
+      value: python:3.11 # Replace with base image including the desired Python version.
