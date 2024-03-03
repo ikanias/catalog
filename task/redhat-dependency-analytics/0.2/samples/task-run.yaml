@@ -19,6 +19,6 @@ spec:
     - name: output-file-path
       value: redhat-dependency-analytics-report.json
     - name: rhda-image
-      value: quay.io/ecosystem-appeng/exhort-javascript-api:0.1.1-ea.14 # Replace with base image where Exhort Javascript API and required dependencies are installed.
+      value: quay.io/ecosystem-appeng/exhort-javascript-api:0.1.1-ea.26 # Replace with base image where Exhort Javascript API and required dependencies are installed.
     - name: python-image
       value: python:3.11 # Replace with base image including the desired Python version.

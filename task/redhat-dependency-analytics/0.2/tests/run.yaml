@@ -59,6 +59,6 @@ spec:
     - name: output-file-path
       value: redhat-dependency-analytics-report.json
     - name: rhda-image
-      value: quay.io/ecosystem-appeng/exhort-javascript-api:0.1.1-ea.14
+      value: quay.io/ecosystem-appeng/exhort-javascript-api:0.1.1-ea.26
     - name: python-image
       value: python:3.11

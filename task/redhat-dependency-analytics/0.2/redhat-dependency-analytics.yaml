@@ -30,7 +30,7 @@ spec:
 
     - name: rhda-image
       description: Image where Exhort Javascript API and required dependencies are installed.
-      default: quay.io/ecosystem-appeng/exhort-javascript-api:0.1.1-ea.14
+      default: quay.io/ecosystem-appeng/exhort-javascript-api:0.1.1-ea.26
 
     - name: python-image
       description: Image with installed Python interpreter and associated tools (such as pip, pip3, etc.).

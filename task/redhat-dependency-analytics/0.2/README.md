@@ -41,7 +41,7 @@ kubectl apply -f samples/secret.yaml -n <NAMESPACE>
 ## Parameters
 - **manifest-file-path**: Path to target manifest file (ex. pom.xml, package.json, go.mod, requirements.txt) within workspace to perform analysis upon.
 - **output-file-path**: Path to file within workspace where the Red Hat Dependency Analytics report will be saved. `(default: redhat-dependency-analytics-report.json)`
-- **rhda-image**: Image where Exhort Javascript API and required dependencies are installed. `(default: quay.io/ecosystem-appeng/exhort-javascript-api:0.1.1-ea.14)`. 
+- **rhda-image**: Image where Exhort Javascript API and required dependencies are installed. `(default: quay.io/ecosystem-appeng/exhort-javascript-api:0.1.1-ea.26)`. 
 - **python-image**: Image with installed Python interpreter and associated tools (such as pip, pip3, etc.). `(default: python:3.11)`. 
 
 List of images for different ecosystem versions can be found [here](https://github.com/RHEcosystemAppEng/exhort-javascript-api/tree/main/docker-image)
@@ -56,19 +56,31 @@ In the logs, a simplified report summary will be displayed, example:
 Red Hat Dependency Analytics Report
 ==================================================
 Dependencies
-  Total Scanned      :  45 
-  Total Direct       :  15 
-  Total Transitive   :  30 
+  Total Scanned      :  8 
+  Total Direct       :  7 
+  Total Transitive   :  1 
+
+Provider: Osv-nvd
+  Provider Status    : OK 
+  Source: Osv-nvd
+    Vulnerabilities
+      Total          :  8 
+      Direct         :  8 
+      Transitive     :  0 
+      Critical       :  2 
+      High           :  4 
+      Medium         :  2 
+      Low            :  0 
 
 Provider: Snyk
   Provider Status    : OK 
   Source: Snyk
     Vulnerabilities
-      Total          :  6 
-      Direct         :  3 
-      Transitive     :  3 
+      Total          :  4 
+      Direct         :  4 
+      Transitive     :  0 
       Critical       :  1 
-      High           :  2 
+      High           :  0 
       Medium         :  3 
       Low            :  0 
 ==================================================
