@@ -14,7 +14,7 @@ The redhat-dependency-analytics task for Tekton Pipelines utilizes the [Exhort J
 
 Prior to executing the redhat-dependency-analytics task, ensure that you have set up the two necessary components.
 
-### 1. Workspace
+### Workspace
 Workspace is used as a common filesystem between tasks. It provides a designated area for the input, output, and intermediate files used during the execution of the pipeline by the redhat-dependency-analytics task.
 
 This [sample](samples/workspace.yaml) file can be referred to in order to create a workspace.
@@ -23,19 +23,6 @@ The following command can be used to create a workspace from the sample file.
 
 ```
 kubectl apply -f samples/workspace.yaml -n <NAMESPACE>
-```
-
-### 2. Secret
-The redhat-dependency-analytics task uses the `EXHORT_SNYK_TOKEN` token to authenticate with Snyk (vulnerability data provider).
-This Token must be saved in a secret by the name of `exhort`.
-To generate a new Snyk token please visit the following [link](https://app.snyk.io/login?utm_campaign=Code-Ready-Analytics-2020&utm_source=code_ready&code_ready=FF1B53D9-57BE-4613-96D7-1D06066C38C9).
-
-This [sample](samples/secret.yaml) file can be referred to in order to create a secret, replace `{{ EXHORT_SNYK_TOKEN }}` with the generated Snyk token before running.
-
-The following command can be used to create a secret from the sample file.
-
-```
-kubectl apply -f samples/secret.yaml -n <NAMESPACE>
 ```
 
 ## Parameters
@@ -70,18 +57,6 @@ Provider: Osv-nvd
       Critical       :  2 
       High           :  4 
       Medium         :  2 
-      Low            :  0 
-
-Provider: Snyk
-  Provider Status    : OK 
-  Source: Snyk
-    Vulnerabilities
-      Total          :  4 
-      Direct         :  4 
-      Transitive     :  0 
-      Critical       :  1 
-      High           :  0 
-      Medium         :  3 
       Low            :  0 
 ==================================================
 Full report is saved into file: redhat-dependency-analytics-report.json
@@ -143,12 +118,6 @@ An example PipelineRun and TaskRun are provided in the `samples` directory in or
     kubectl apply -f samples/workspace.yaml -n <NAMESPACE>
     ```
 
-1. In [secret.yaml](samples/secret.yaml), first replace `{{ EXHORT_SNYK_TOKEN }}` with a generated Snyk token, then create the secret, run:
-    ```
-    kubectl apply -f samples/secret.yaml -n <NAMESPACE>
-    ```
-    To generate a new Snyk token visit the following [link](https://app.snyk.io/login?utm_campaign=Code-Ready-Analytics-2020&utm_source=code_ready&code_ready=FF1B53D9-57BE-4613-96D7-1D06066C38C9).
-
 1. Deploy the redhat-dependency-analytics task by utilizing the [redhat-dependency-analytics.yaml](redhat-dependency-analytics.yaml) configuration file. You can initiate it by using the following command:
     ```
     kubectl apply -f redhat-dependency-analytics.yaml -n <NAMESPACE>
@@ -180,6 +149,3 @@ Additionally, if you are operating within a Python environment, you have the fle
     ```
     kubectl apply -f samples/task-run.yaml -n <NAMESPACE>
     ```
-
-**NOTE:** The redhat-dependency-analytics task expects to have a secret by the name of `exhort` configured with the `EXHORT_SNYK_TOKEN` key, 
-as well as an attached workspace with the target manifest file stored within.

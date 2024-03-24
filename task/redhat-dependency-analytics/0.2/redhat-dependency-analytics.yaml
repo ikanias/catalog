@@ -75,11 +75,6 @@ spec:
       image: $(params.rhda-image)
       workingDir: $(workspaces.output.path)
       env:
-        - name: EXHORT_SNYK_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: exhort
-              key: EXHORT_SNYK_TOKEN
         - name: RHDA_SOURCE
           value: tekton
       volumeMounts:

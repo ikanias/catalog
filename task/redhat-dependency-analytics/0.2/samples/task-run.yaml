@@ -1,5 +1,5 @@
 # Stand alone redhat-dependency-analytics TaskRun.
-# Make sure that you have attached the Workspace containing the manifest file and created the required Secret within your environment.
+# Make sure that you have attached the Workspace containing the manifest file within your environment.
 
 apiVersion: tekton.dev/v1beta1
 kind: TaskRun
