@@ -30,6 +30,7 @@ kubectl apply -f samples/workspace.yaml -n <NAMESPACE>
 - **output-file-path**: Path to file within workspace where the Red Hat Dependency Analytics report will be saved. `(default: redhat-dependency-analytics-report.json)`
 - **rhda-image**: Image where Exhort Javascript API and required dependencies are installed. `(default: quay.io/ecosystem-appeng/exhort-javascript-api:0.1.1-ea.26)`. 
 - **python-image**: Image with installed Python interpreter and associated tools (such as pip, pip3, etc.). `(default: python:3.11)`. 
+- **use-go-mvs-logic**:  indicate whether to use the Minimal version selection (MVS) algorithm to select a set of module versions to use when building Go packages. Relevant for Go ecosystem only. `(default: false)`. 
 
 List of images for different ecosystem versions can be found [here](https://github.com/RHEcosystemAppEng/exhort-javascript-api/tree/main/docker-image)
 
@@ -103,6 +104,8 @@ You can apply the specified task to resources such as TaskRun, Pipeline, and Pip
       value: your-image-name:tag
     - name: python-image
       value: your-image-name:tag
+    - name: use-go-mvs-logic
+      value: false
 ...
 ...
 ```
@@ -136,7 +139,8 @@ An example PipelineRun and TaskRun are provided in the `samples` directory in or
     ```
 
 1. In [pipeline-run.yaml](samples/pipeline-run.yaml), first replace `{{ GITHUB_URL }}` with the Github URL to the project repository where the target manifest file resides, next replace `{{ MANIFEST_FILE_PATH }}` with the path to the target manifest file within workspace (e.g., "pom.xml" or "path/to/my/project/pom.xml"). 
-Additionally, if you are operating within a Python environment, you have the flexibility to substitute the default value of the `python-image` parameter with a base image that incorporates the specific Python version you prefer. finally create the pipelinerun, run:
+Additionally, if you are operating within a Python environment, you have the flexibility to substitute the default value of the `python-image` parameter with a base image that incorporates the specific Python version you prefer. If you are operating within a Go environment, you might prefer to use the Minimal version selection (MVS) algorithm to select a set of module versions to use when building Go packages, in that case, set `use-go-mvs-logic` parameter to true.
+Finally create the pipelinerun, run:
     ```
     kubectl apply -f samples/pipeline-run.yaml -n <NAMESPACE>
     ```
@@ -145,7 +149,8 @@ Additionally, if you are operating within a Python environment, you have the fle
 
 1. Store the target manifest file into a desired location inside workspace.
 
-1. In [task-run.yaml](samples/task-run.yaml), replace `{{ MANIFEST_FILE_PATH }}` with the path to the target manifest file within workspace (e.g., "pom.xml" or "path/to/my/project/pom.xml"). Additionally, if you are operating within a Python environment, you have the flexibility to substitute the default value of the `python-image` parameter with a base image that incorporates the specific Python version you prefer. then create the taskrun, run:
+1. In [task-run.yaml](samples/task-run.yaml), replace `{{ MANIFEST_FILE_PATH }}` with the path to the target manifest file within workspace (e.g., "pom.xml" or "path/to/my/project/pom.xml"). Additionally, if you are operating within a Python environment, you have the flexibility to substitute the default value of the `python-image` parameter with a base image that incorporates the specific Python version you prefer. If you are operating within a Go environment, you might prefer to use the Minimal version selection (MVS) algorithm to select a set of module versions to use when building Go packages, in that case, set `use-go-mvs-logic` parameter to true.
+Then create the taskrun, run:
     ```
     kubectl apply -f samples/task-run.yaml -n <NAMESPACE>
     ```

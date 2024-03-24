@@ -22,3 +22,5 @@ spec:
       value: quay.io/ecosystem-appeng/exhort-javascript-api:0.1.1-ea.26 # Replace with base image where Exhort Javascript API and required dependencies are installed.
     - name: python-image
       value: python:3.11 # Replace with base image including the desired Python version.
+    - name: use-go-mvs-logic
+      value: false # Set to true if using Minimal version selection (MVS) algorithm for building Go packages is preferred.

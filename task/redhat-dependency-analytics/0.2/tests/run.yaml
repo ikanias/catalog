@@ -12,6 +12,7 @@ spec:
   - name: output-file-path
   - name: rhda-image
   - name: python-image
+  - name: use-go-mvs-logic
   tasks:
     - name: git-clone-project
       taskRef:
@@ -39,6 +40,8 @@ spec:
           value: $(params.rhda-image)
         - name: python-image
           value: $(params.python-image)
+        - name: use-go-mvs-logic
+          value: $(params.use-go-mvs-logic)
 ---
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
@@ -62,3 +65,5 @@ spec:
       value: quay.io/ecosystem-appeng/exhort-javascript-api:0.1.1-ea.26
     - name: python-image
       value: python:3.11
+    - name: use-go-mvs-logic
+      value: false

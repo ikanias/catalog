@@ -36,6 +36,10 @@ spec:
       description: Image with installed Python interpreter and associated tools (such as pip, pip3, etc.).
       default: python:3.11
 
+    - name: use-go-mvs-logic
+      description: Uses the Minimal version selection (MVS) algorithm to select a set of module versions to use when building Go packages.
+      default: false
+
   sidecars:
     - name: python
       image: $(params.python-image)
@@ -132,6 +136,8 @@ spec:
         else
           touch /shared/notPython
         fi
+
+        export EXHORT_GO_MVS_LOGIC_ENABLED=$(echo "$(params.use-go-mvs-logic)")
 
         # execute RHDA
         sh /rhda.sh "$MANIFEST_FILE_PATH" "$OUTPUT_FILE_PATH"

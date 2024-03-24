@@ -15,6 +15,7 @@ spec:
   - name: output-file-path
   - name: rhda-image
   - name: python-image
+  - name: use-go-mvs-logic
   tasks:
     # git-clone-project task
     - name: git-clone-project
@@ -44,3 +45,5 @@ spec:
           value: $(params.rhda-image)
         - name: python-image
           value: $(params.python-image)
+        - name: use-go-mvs-logic
+          value: $(params.use-go-mvs-logic)
